@@ -38,8 +38,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
             onClick={() => {
               const message = `Hello! I'm interested in buying the ${product.name} ($${product.price}). Is it available?`;
               navigator.clipboard.writeText(message).then(() => {
-                alert("Order details copied to clipboard! Paste them in Instagram DMs.");
-                window.open(`https://www.instagram.com/thecodehouse.09/`, '_blank');
+                alert("Order details copied! Paste them in the Instagram DM window that opens next.");
+                window.open(`https://ig.me/m/thecodehouse.09`, '_blank');
               });
             }}
             className="w-full bg-brand-yellow hover:bg-brand-yellow-dark text-black py-3 px-6 font-display font-medium flex items-center justify-center gap-2 transition-colors border border-black text-xs font-bold"
