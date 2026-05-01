@@ -36,8 +36,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
           </button>
           <button
             onClick={() => {
-              const message = encodeURIComponent(`Hello! I'm interested in buying the ${product.name} ($${product.price}). Is it available?`);
-              window.open(`https://wa.me/917002493059?text=${message}`, '_blank');
+              const message = `Hello! I'm interested in buying the ${product.name} ($${product.price}). Is it available?`;
+              navigator.clipboard.writeText(message).then(() => {
+                alert("Order details copied to clipboard! Paste them in Instagram DMs.");
+                window.open(`https://www.instagram.com/thecodehouse.09/`, '_blank');
+              });
             }}
             className="w-full bg-brand-yellow hover:bg-brand-yellow-dark text-black py-3 px-6 font-display font-medium flex items-center justify-center gap-2 transition-colors border border-black text-xs font-bold"
             id={`buy-now-${product.id}`}

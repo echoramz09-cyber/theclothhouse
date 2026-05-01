@@ -108,8 +108,11 @@ export default function Cart({ isOpen, onClose, items, onUpdateQuantity, onRemov
                 <button 
                   onClick={() => {
                     const itemSummary = items.map(item => `- ${item.name} (x${item.quantity}): $${item.price * item.quantity}`).join('\n');
-                    const message = encodeURIComponent(`Hello! I'd like to place an order from The Cloth House:\n\n${itemSummary}\n\nTotal: $${total}\n\nPlease let me know the next steps!`);
-                    window.open(`https://wa.me/917002493059?text=${message}`, '_blank');
+                    const message = `Hello! I'd like to place an order from The Cloth House:\n\n${itemSummary}\n\nTotal: $${total}\n\nPlease let me know the next steps!`;
+                    navigator.clipboard.writeText(message).then(() => {
+                      alert("Cart details copied to clipboard! Paste them in Instagram DMs.");
+                      window.open(`https://www.instagram.com/thecodehouse.09/`, '_blank');
+                    });
                   }}
                   className="w-full bg-brand-black text-white py-5 font-display font-medium uppercase tracking-[0.2em] hover:bg-brand-yellow hover:text-black hover:border-black border border-transparent transition-all"
                 >
