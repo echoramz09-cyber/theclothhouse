@@ -25,7 +25,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
           className="h-full w-full object-cover object-center transition-transform duration-700 group-hover:scale-110"
           referrerPolicy="no-referrer"
         />
-                <div className="absolute inset-x-0 bottom-0 p-4 translate-y-full group-hover:translate-y-0 transition-all duration-300 flex flex-col gap-2">
+                <div className="absolute inset-x-0 bottom-0 p-4 translate-y-0 lg:translate-y-full lg:group-hover:translate-y-0 transition-all duration-300 flex flex-col gap-2 bg-gradient-to-t from-white/90 via-white/40 to-transparent lg:bg-none">
           <button
             onClick={() => onAddToCart(product)}
             className="w-full bg-brand-white hover:bg-brand-offwhite text-black py-3 px-6 font-display font-medium flex items-center justify-center gap-2 transition-colors border border-black text-xs"
