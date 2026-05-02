@@ -1,32 +1,36 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import { collection, getDocs, query, orderBy } from 'firebase/firestore';
+import { db, handleFirestoreError, OperationType } from './lib/firebase';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import ProductCard from './components/ProductCard';
 import Cart from './components/Cart';
+import Admin from './components/Admin';
 import { Product, CartItem } from './types';
 
-const PRODUCTS: Product[] = [
-  {
-    id: '1',
-    name: 'Architectural Linen Shirt',
-    price: 185,
-    description: 'A crisp, white linen shirt featuring structured seams and an oversized collar. The ultimate foundation piece for any house wardrobe.',
-    category: 'Essential Tops',
-    image: 'https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?q=80&w=800&auto=format&fit=crop'
-  },
-  {
-    id: '2',
-    name: 'Citrus Corduroy Trousers',
-    price: 220,
-    description: 'Tailored trousers in a vibrant lemon yellow corduroy. High-waisted with a subtle wide-leg cut for a modern architectural silhouette.',
-    category: 'Statement Bottoms',
-    image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=800&auto=format&fit=crop'
-  }
-];
-
-export default function App() {
+function StoreFront() {
+  const [products, setProducts] = useState<Product[]>([]);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      const path = 'products';
+      try {
+        const q = query(collection(db, path), orderBy('createdAt', 'desc'));
+        const snapshot = await getDocs(q);
+        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Product));
+        setProducts(data);
+        setLoading(false);
+      } catch (err) {
+        handleFirestoreError(err, OperationType.GET, path);
+        setLoading(false);
+      }
+    };
+    fetchProducts();
+  }, []);
 
   const addToCart = (product: Product) => {
     setCartItems(prev => {
@@ -78,15 +82,26 @@ export default function App() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-12 lg:gap-20">
-            {PRODUCTS.map(product => (
-              <ProductCard 
-                key={product.id} 
-                product={product} 
-                onAddToCart={addToCart} 
-              />
-            ))}
-          </div>
+          {loading ? (
+            <div className="flex justify-center py-20">
+              <div className="w-10 h-10 border-4 border-brand-yellow border-t-black rounded-full animate-spin"></div>
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-2 gap-12 lg:gap-20">
+              {products.map(product => (
+                <ProductCard 
+                  key={product.id} 
+                  product={product} 
+                  onAddToCart={addToCart} 
+                />
+              ))}
+              {products.length === 0 && (
+                <div className="col-span-full py-20 text-center border-2 border-dashed border-black/10 text-black/20 font-display font-bold uppercase tracking-widest">
+                  Store collection is coming soon
+                </div>
+              )}
+            </div>
+          )}
         </section>
 
         <section className="bg-brand-black text-white py-24 md:py-32 overflow-hidden relative">
@@ -102,7 +117,7 @@ export default function App() {
               <input 
                 type="email" 
                 placeholder="EMAIL ADDRESS" 
-                className="flex-1 bg-transparent border-b-2 border-white/20 py-4 px-2 outline-none focus:border-brand-yellow transition-colors font-display"
+                className="flex-1 bg-transparent border-b-2 border-white/20 py-4 px-2 outline-none focus:border-brand-yellow transition-colors font-display text-white"
               />
               <button className="bg-brand-yellow text-black px-10 py-4 font-display font-bold uppercase tracking-widest hover:bg-white transition-colors">
                 Join
@@ -117,9 +132,17 @@ export default function App() {
           <p className="font-display text-lg font-bold tracking-tighter uppercase mb-2">
             THE CLOTH <span className="text-brand-yellow-dark">HOUSE</span>
           </p>
-          <p className="text-[10px] text-black/40 uppercase tracking-[0.2em]">
-            © 2026 THE CLOTH HOUSE STUDIO. ALL RIGHTS RESERVED.
-          </p>
+          <div className="flex flex-col items-center gap-4">
+            <p className="text-[10px] text-black/40 uppercase tracking-[0.2em]">
+              © 2026 THE CLOTH HOUSE STUDIO. ALL RIGHTS RESERVED.
+            </p>
+            <Link 
+              to="/admin" 
+              className="text-[10px] text-black/20 hover:text-brand-yellow-dark uppercase tracking-widest transition-colors font-bold border border-black/10 px-3 py-1"
+            >
+              Admin Access
+            </Link>
+          </div>
         </div>
       </footer>
 
@@ -133,3 +156,15 @@ export default function App() {
     </div>
   );
 }
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<StoreFront />} />
+        <Route path="/admin" element={<Admin />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
+
